@@ -1,23 +1,26 @@
 #!/usr/bin/env python
-#coding:utf-8
+# coding:utf-8
 
 import os
 import codecs
 import feedparser
 from datetime import datetime
 
+
 # Main Transaction
 class rss:
-    def __init__(self, name='', url=''):
+    def __init__(self, name=None, url=None):
         self.name = name
         self.url = url
         self.dic = feedparser.parse(self.url)
         str_rss_date = self.dic.feed.date[0:19].replace('T', ' ')
         self.rss_date = datetime.strptime(str_rss_date, '%Y-%m-%d %H:%M:%S')
 
+
 def cleanup(string):
     string = string.replace('\n', ' ').replace('\r', ' ').replace(',', ' ')
     return string
+
 
 # Extract information from RSS
 def rss_extract(name, dic):
@@ -54,12 +57,16 @@ def rss_extract(name, dic):
                 f.write('-' + ',')
                 f.write('-' + ',')
                 f.write('-' + ',')
+                #   elif name == "vulmon":
+                f.write('-' + ',')
+                f.write('-' + ',')
+                f.write('-' + ',')
             f.write(link + '\n')
+
 
 def main():
     if os.path.isfile(result_file):
         # Get result file update time
-        os.stat(result_file).st_mtime
         file_date = datetime.fromtimestamp(os.stat(result_file).st_mtime)
 
         if jvn.rss_date > file_date:
@@ -92,6 +99,10 @@ def main():
         # Extract for NIST National Vulnerability Database
         rss_extract(nistdb.name, nistdb.dic)
 
+        # Extract for Vulmon
+        # rss_extract(vulmon.name, vulmon.dic)
+
+
 if __name__ == "__main__":
     # Create result file
     result_file = 'result.csv'
@@ -104,5 +115,8 @@ if __name__ == "__main__":
 
     # Transaction for NIST National Vulnerability Database
     nistdb = rss('nistdb', 'https://nvd.nist.gov/feeds/xml/cve/misc/nvd-rss.xml')
+
+    # Transaction for NIST National Vulnerability Database
+    # vulmon = rss('vulmon', 'https://vulmon.com/searchfeed?q=*&sortby=bydate&remote=on&local=on&physical=on&nanalyzed=on')
 
     main()
